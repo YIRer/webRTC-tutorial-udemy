@@ -2,12 +2,14 @@ import * as store from "./store.js";
 import * as wss from "./wss.js";
 import * as webRTCHandler from "./webRTCHandler.js";
 import { callType } from "./constants.js";
-import { getIncomingCallDialog } from "./elements.js";
 
 const socket = io("/");
 
 //socketIO 연결 초기화
 wss.registerSocketEvents(socket);
+
+//개인 비디오 카메라 스트리밍
+webRTCHandler.getLocalPreview();
 
 //개인 코드 복사 버튼 클릭 이벤트 추가
 const personalCodeCopyButton = document.getElementById(

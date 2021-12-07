@@ -33,6 +33,10 @@ io.on("connection", (socket) => {
       };
 
       io.to(calleePersonalCode).emit("pre-offer", data);
+    } else {
+      io.to(socket.id).emit("pre-offer-answer", {
+        preOfferAnswer: "CALLEE_NOT_FOUND",
+      });
     }
   });
 
@@ -43,6 +47,21 @@ io.on("connection", (socket) => {
       (socketId) => socketId !== socket.id
     );
     console.log(connectedPeers);
+  });
+
+  socket.on("pre-offer-answer", (data) => {
+    console.log("pre offer came");
+    console.log(data);
+
+    const { callSocketId } = data;
+
+    const connectedPeer = connectedPeers.find(
+      (peerId) => peerId === callSocketId
+    );
+
+    if (connectedPeer) {
+      io.to(callSocketId).emit("pre-offer-answer", data);
+    }
   });
 });
 
