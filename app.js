@@ -40,15 +40,6 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("disconnect", () => {
-    console.log("user disconnected");
-
-    connectedPeers = connectedPeers.filter(
-      (socketId) => socketId !== socket.id
-    );
-    console.log(connectedPeers);
-  });
-
   socket.on("pre-offer-answer", (data) => {
     console.log("pre offer came");
     console.log(data);
@@ -62,6 +53,27 @@ io.on("connection", (socket) => {
     if (connectedPeer) {
       io.to(callSocketId).emit("pre-offer-answer", data);
     }
+  });
+
+  socket.on("webRTC-signaling", (data) => {
+    const { connectedUserSocketId } = data;
+    
+    const connectedPeer = connectedPeers.find(
+      (peerId) => peerId === connectedUserSocketId
+    );
+
+    if (connectedPeer) {
+      io.to(connectedUserSocketId).emit("webRTC-signaling", data);
+    }
+  });
+
+  socket.on("disconnect", () => {
+    console.log("user disconnected");
+
+    connectedPeers = connectedPeers.filter(
+      (socketId) => socketId !== socket.id
+    );
+    console.log(connectedPeers);
   });
 });
 
