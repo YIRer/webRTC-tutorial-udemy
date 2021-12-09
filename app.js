@@ -15,6 +15,7 @@ app.get("/", (req, res) => {
 });
 
 let connectedPeers = [];
+let connectedPeersStrangers = [];
 
 io.on("connection", (socket) => {
   connectedPeers.push(socket.id);
@@ -41,9 +42,6 @@ io.on("connection", (socket) => {
   });
 
   socket.on("pre-offer-answer", (data) => {
-    console.log("pre offer came");
-    console.log(data);
-
     const { callSocketId } = data;
 
     const connectedPeer = connectedPeers.find(
@@ -57,7 +55,7 @@ io.on("connection", (socket) => {
 
   socket.on("webRTC-signaling", (data) => {
     const { connectedUserSocketId } = data;
-    
+
     const connectedPeer = connectedPeers.find(
       (peerId) => peerId === connectedUserSocketId
     );
@@ -67,13 +65,62 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("disconnect", () => {
-    console.log("user disconnected");
+  socket.on("user-hanged-up", (data) => {
+    const { connectedUserSocketId } = data;
+    const connectedPeer = connectedPeers.find(
+      (peerId) => peerId === connectedUserSocketId
+    );
 
+    if (connectedPeer) {
+      io.to(connectedUserSocketId).emit("user-hanged-up");
+    }
+  });
+
+  socket.on("stranger-connection-status", (data) => {
+    const { status } = data;
+    if (status) {
+      connectedPeersStrangers.push(socket.id);
+    } else {
+      const newConnectedPeersStrangers = connectedPeersStrangers.filter(
+        (peerId) => peerId !== socket.id
+      );
+
+      connectedPeersStrangers = newConnectedPeersStrangers;
+    }
+  });
+
+  socket.on("get-stranger-socket-id", () => {
+    let randomStrangerSocketId;
+    const filteredConnectedPeersStrangers = connectedPeersStrangers.filter(
+      (peerId) => peerId !== socket.id
+    );
+
+    if (filteredConnectedPeersStrangers.length > 0) {
+      randomStrangerSocketId =
+        filteredConnectedPeersStrangers[
+          Math.floor(Math.random() * filteredConnectedPeersStrangers.length)
+        ];
+    } else {
+      randomStrangerSocketId = null;
+    }
+
+    const data = {
+      randomStrangerSocketId,
+    };
+
+    io.to(socket.id).emit("stranger-socket-id", data);
+  });
+
+  socket.on("disconnect", () => {
     connectedPeers = connectedPeers.filter(
       (socketId) => socketId !== socket.id
     );
-    console.log(connectedPeers);
+
+    const newConnectedPeersStrangers = connectedPeersStrangers.filter(
+      (peerId) => peerId !== socket.id
+    );
+
+    connectedPeersStrangers = newConnectedPeersStrangers;
   });
 });
 

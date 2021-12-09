@@ -3,8 +3,6 @@ export const getIncomingCallDialog = (
   acceptCallHandler,
   rejectCallHandler
 ) => {
-  console.log("getIncomingCallDialog");
-
   const dialog = document.createElement("div");
   dialog.classList.add("dialog_wrapper");
 
@@ -85,6 +83,10 @@ export const getCallingDialog = (rejectCallHandler) => {
   const rejectCallImg = document.createElement("img");
   rejectCallImg.src = "./utils/images/rejectCall.png";
   rejectCallButton.appendChild(rejectCallImg);
+
+  rejectCallButton.addEventListener("click", () => {
+    rejectCallHandler();
+  });
 
   buttonContainer.appendChild(rejectCallButton);
 

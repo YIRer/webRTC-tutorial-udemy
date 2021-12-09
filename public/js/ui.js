@@ -83,10 +83,12 @@ export const showInfoDialog = (preOfferAnswer) => {
 export const showCallElements = (callType) => {
   switch (callType) {
     case constants.callType.CHAT_PERSONAL_CODE:
+    case constants.callType.CHAT_STRANGER:
       showChatCallElements();
       break;
 
     case constants.callType.VIDEO_PERSONAL_CODE:
+    case constants.callType.VIDEO_STRANGER:
       showVideoCallElements();
       break;
 
@@ -149,7 +151,6 @@ const showElement = (elements) => {
 
 export const updateLocalVideo = (stream) => {
   const localVideo = document.getElementById("local_video");
-  console.log(stream);
   localVideo.srcObject = stream;
 
   localVideo.addEventListener("loadedmetadata", () => {
@@ -221,4 +222,74 @@ export const switchRecordingButtons = (swithForResumeButton = false) => {
     hideElement(resumeButton);
     showElement(pauseButton);
   }
+};
+
+export const updateUIAfterHangUp = (callType) => {
+  enableDashboard();
+
+  const callButtons = document.getElementById("call_buttons");
+  if (
+    callType === constants.callType.VIDEO_PERSONAL_CODE ||
+    callType === constants.callType.CHAT_PERSONAL_CODE
+  ) {
+    hideElement(callButtons);
+  } else {
+    const chatCallButtons = document.getElementById(
+      "finish_chat_button_container"
+    );
+    hideElement(callButtons);
+    hideElement(chatCallButtons);
+  }
+  const newMessageInput = document.getElementById("new_message");
+  hideElement(newMessageInput);
+  clearMessenger();
+
+  updateMicButton(false);
+  updateCameraButton(false);
+
+  const placeholder = document.getElementById("video_placeholder");
+  showElement(placeholder);
+
+  const remoteVideo = document.getElementById("remote_video");
+  hideElement(remoteVideo);
+
+  removeAllDialogs();
+};
+
+export const showVideoCallButtons = () => {
+  const personalCodeVideoButton = document.getElementById(
+    "personal_code_video_button"
+  );
+
+  const strangerVideoButton = document.getElementById("stranger_video_button");
+
+  showElement(personalCodeVideoButton);
+  showElement(strangerVideoButton);
+};
+
+export const updateStrangerCheckbox = (allowConnections) => {
+  const checkboxCheckImg = document.getElementById(
+    "allow_strangers_checkbox_image"
+  );
+
+  if (allowConnections) {
+    showElement(checkboxCheckImg);
+  } else {
+    hideElement(checkboxCheckImg);
+  }
+};
+
+export const showNoStrangerAvailableDialog = () => {
+  const infoDialog = elements.getInfoDialog(
+    "No stranger available",
+    "Please try again later"
+  );
+
+  const dialog = document.getElementById("dialog");
+
+  dialog.appendChild(infoDialog);
+
+  setTimeout(() => {
+    removeAllDialogs();
+  }, 4000);
 };

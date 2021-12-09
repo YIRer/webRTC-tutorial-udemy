@@ -3,6 +3,7 @@ import * as wss from "./wss.js";
 import * as webRTCHandler from "./webRTCHandler.js";
 import * as ui from "./ui.js";
 import * as recordingUtils from "./recordingUtils.js";
+import * as strangerUtils from "./strangerUitls.js";
 import { callType } from "./constants.js";
 
 const socket = io("/");
@@ -37,7 +38,6 @@ const personalCodeVideoButton = document.getElementById(
 );
 
 personalCodeChatButton.addEventListener("click", () => {
-  console.log("clicked chat button");
   const calleePersonalCode = document.getElementById("personal_code_input");
   webRTCHandler.sendPreOffer(
     callType.CHAT_PERSONAL_CODE,
@@ -46,7 +46,6 @@ personalCodeChatButton.addEventListener("click", () => {
 });
 
 personalCodeVideoButton.addEventListener("click", () => {
-  console.log("clicked video button");
   const calleePersonalCode = document.getElementById("personal_code_input");
   webRTCHandler.sendPreOffer(
     callType.VIDEO_PERSONAL_CODE,
@@ -133,4 +132,36 @@ const resumeRecordingButton = document.getElementById(
 resumeRecordingButton.addEventListener("click", () => {
   recordingUtils.resumeRecording();
   ui.switchRecordingButtons();
+});
+
+//연결 끊기
+const hangUpButton = document.getElementById("hang_up_button");
+hangUpButton.addEventListener("click", () => {
+  webRTCHandler.handleHangUp();
+});
+
+const hangUpChatButton = document.getElementById("finish_chat_call_button");
+hangUpChatButton.addEventListener("click", () => {
+  webRTCHandler.handleHangUp();
+});
+
+//랜덤 채팅 허용 버튼
+const strangerCheckbox = document.getElementById("allow_strangers_checkbox");
+strangerCheckbox.addEventListener("click", () => {
+  const checkboxState = store.getState().allowConnectionFromStrangers;
+  ui.updateStrangerCheckbox(!checkboxState);
+  store.setAllowConnectionFromStrangers(!checkboxState);
+  strangerUtils.changeStrangerConnectionStatus(!checkboxState);
+});
+
+//랜덤 채팅 버튼
+const strangerChatButton = document.getElementById("stranger_chat_button");
+strangerChatButton.addEventListener("click", () => {
+  strangerUtils.getStrangerSocketIdAndConnect(callType.CHAT_STRANGER);
+});
+
+//랜덤 화상 채팅 버튼
+const strangerVideoButton = document.getElementById("stranger_video_button");
+strangerVideoButton.addEventListener("click", () => {
+  strangerUtils.getStrangerSocketIdAndConnect(callType.VIDEO_STRANGER);
 });
