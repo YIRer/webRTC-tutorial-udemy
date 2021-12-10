@@ -19,8 +19,10 @@ const defaultConstrains = {
 };
 
 //webRTC 연결 설정
+//references : https://gist.github.com/sagivo/3a4b2f2c7ac6e1b5267c2f1f59ac6c6b
 const configuration = {
   iceServers: [
+    { urls: "stun:stun.l.google.com:13902" },
     {
       url: "turn:numb.viagenie.ca",
       credential: "muazkh",
@@ -36,8 +38,8 @@ const configuration = {
       credential: "JZEOEt2V3Qb0y27GRntt2u2PAYA=",
       username: "28224511:1379330808",
     },
-    { urls: "stun:stun.l.google.com:13902" },
   ],
+  iceTransportPolicy: "relay",
 };
 
 const createPeerConnection = () => {
